@@ -17,19 +17,29 @@ class ConfigModel extends \BasicApp\Core\Model
     {
         $row = $this->where(['config_class' => $class, 'config_property' => $property])->first();
 
+        $changed = false;
+
         if (!$row)
         {
             $row = new Config;
 
             $row->config_class = $class;
-
+        
             $row->config_property = $property;
-
-            $row->config_value = $value;
+        
+            $changed = true;
         }
 
-        $this->save($row);
+        if ($row->config_value != $value)
+        {
+            $row->config_value = $value;
+            
+            $changed = true;
+        }
+
+        if ($changed)
+        {
+            $this->save($row);
+        }
     }
-
-
 }
