@@ -36,30 +36,10 @@ abstract class ConfigForm extends \BasicApp\Core\Model
 
     public function insert($data = null, bool $returnID = true)
     {
-        // If $data is using a custom class with public or protected
-        // properties representing the table elements, we need to grab
-        // them as an array.
-        if (is_object($data) && ! $data instanceof stdClass)
-        {
-            $data = static::classToArray($data, $this->primaryKey, $this->dateFormat, false);
-        }
-
-        // If it's still a stdClass, go ahead and convert to
-        // an array so doProtectFields and other model methods
-        // don't have to do special checks.
-        if (is_object($data))
-        {
-            $data = (array) $data;
-        }
-
         if ($this->validate($data) === false)
         {
             return false;
         }
-
-        $data = $this->doProtectFields($data);
-
-        $properties = [];
 
         foreach ($data as $property => $value)
         {
@@ -95,18 +75,8 @@ abstract class ConfigForm extends \BasicApp\Core\Model
                     throw new Exception($error);
                 }
             }
-
-            $properties[] = $property;
         }
-
-        // delete old properties
-
-        $this->db->table($this->table)
-            ->where('config_class', get_called_class())
-            ->whereNotIn('config_property', $properties)
-            ->delete();
 
         return true;
     }
-
 }
